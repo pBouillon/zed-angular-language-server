@@ -1,0 +1,2 @@
+[alias]
+build-extension = "build --release --target wasm32-wasip1"
