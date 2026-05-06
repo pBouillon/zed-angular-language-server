@@ -9,9 +9,3 @@ repository = "https://github.com/pBouillon/zed-angular-language-server"
 [language_servers.angular-language-server]
 name = "Angular Language Server"
 languages = ["TypeScript", "HTML"]
-activation_files = [
-    # Angular workspaces
-    "angular.json",
-    # NX workspaces
-    "project.json"
-]

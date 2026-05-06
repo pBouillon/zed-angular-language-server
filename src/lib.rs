@@ -1,17 +1,16 @@
 use zed_extension_api as zed;
 
+mod package_manager;
+
 /// Represents the state of the Angular Language Server extension.
 struct AngularLanguageServerExtension {
-}
-
-impl AngularLanguageServerExtension {
 }
 
 impl zed::Extension for AngularLanguageServerExtension {
     /// Initializes a new instance of the extension.
     ///
-    /// Zed calls this exactly once when the
-    /// extension is loaded into the editor.
+    /// Zed calls this exactly once when the extension is loaded into the
+    /// editor.
     fn new() -> Self {
         Self { }
     }
@@ -23,9 +22,10 @@ impl zed::Extension for AngularLanguageServerExtension {
     fn language_server_command(
         &mut self,
         _language_server_id: &zed::LanguageServerId,
-        _worktree: &zed::Worktree,
+        worktree: &zed::Worktree,
     ) -> zed::Result<zed::Command> {
-        todo!()
+        let version = package_manager::detect_angular_version(worktree);
+        Err(format!("Detected Angular Version: {}", version))
     }
 }
 
