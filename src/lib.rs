@@ -1,5 +1,6 @@
 use zed_extension_api as zed;
 
+mod language_server;
 mod package_manager;
 mod semantic_version;
 
@@ -22,11 +23,16 @@ impl zed::Extension for AngularLanguageServerExtension {
     /// Angular, as defined in the `extension.toml`.
     fn language_server_command(
         &mut self,
-        _language_server_id: &zed::LanguageServerId,
+        language_server_id: &zed::LanguageServerId,
         worktree: &zed::Worktree,
     ) -> zed::Result<zed::Command> {
-        let version = package_manager::detect_project_versions(worktree);
-        Err(format!("Detected Angular Version: {} - associated TS version: {}", version.angular, version.typescript))
+        let versions = package_manager::detect_project_versions(worktree);
+        let binaries = language_server::resolve_binaries(language_server_id, &versions)?;
+
+        Err(format!(
+            "node: {} | server: {} | angular: {} | ts: {}",
+            binaries.node, binaries.server_entry, versions.angular, versions.typescript
+        ))
     }
 }
 
