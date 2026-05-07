@@ -1,6 +1,7 @@
 use zed_extension_api as zed;
 
 mod package_manager;
+mod semantic_version;
 
 /// Represents the state of the Angular Language Server extension.
 struct AngularLanguageServerExtension {
@@ -24,8 +25,8 @@ impl zed::Extension for AngularLanguageServerExtension {
         _language_server_id: &zed::LanguageServerId,
         worktree: &zed::Worktree,
     ) -> zed::Result<zed::Command> {
-        let version = package_manager::detect_angular_version(worktree);
-        Err(format!("Detected Angular Version: {}", version))
+        let version = package_manager::detect_project_versions(worktree);
+        Err(format!("Detected Angular Version: {} - associated TS version: {}", version.angular, version.typescript))
     }
 }
 
