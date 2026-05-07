@@ -1,5 +1,6 @@
 mod language_server;
 mod language_server_binaries;
+mod logging;
 mod package_manager;
 mod semantic_version;
 
