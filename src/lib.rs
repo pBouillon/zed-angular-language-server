@@ -1,12 +1,13 @@
-use zed_extension_api as zed;
-
 mod language_server;
+mod language_server_binaries;
 mod package_manager;
 mod semantic_version;
 
+use zed_extension_api as zed;
+use language_server_binaries::LanguageServerBinaries;
+
 /// Represents the state of the Angular Language Server extension.
-struct AngularLanguageServerExtension {
-}
+struct AngularLanguageServerExtension {}
 
 impl zed::Extension for AngularLanguageServerExtension {
     /// Initializes a new instance of the extension.
@@ -27,12 +28,10 @@ impl zed::Extension for AngularLanguageServerExtension {
         worktree: &zed::Worktree,
     ) -> zed::Result<zed::Command> {
         let versions = package_manager::detect_project_versions(worktree);
-        let binaries = language_server::resolve_binaries(language_server_id, &versions)?;
 
-        Err(format!(
-            "node: {} | server: {} | angular: {} | ts: {}",
-            binaries.node, binaries.server_entry, versions.angular, versions.typescript
-        ))
+        LanguageServerBinaries::resolve(language_server_id, &versions)
+            .map(language_server::AngularLanguageServer::from)
+            .map(|server| server.command())
     }
 }
 
