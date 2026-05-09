@@ -31,9 +31,9 @@ impl zed::Extension for AngularLanguageServerExtension {
     ) -> zed::Result<zed::Command> {
         let versions = package_manager::detect_project_versions(worktree);
 
-        LanguageServerBinaries::resolve(language_server_id, &versions)
+        LanguageServerBinaries::resolve(language_server_id, &versions, worktree)
             .map(language_server::AngularLanguageServer::from)
-            .map(|server| server.command())
+            .map(|server| server.command(Some(worktree)))
     }
 
     /// Returns the label for the given completion.

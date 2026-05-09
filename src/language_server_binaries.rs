@@ -1,3 +1,4 @@
+use std::env;
 use zed_extension_api::{self as zed, LanguageServerInstallationStatus};
 
 use crate::package_manager::AngularProjectVersions;
@@ -7,22 +8,22 @@ use crate::{log_error, log_info};
 const ANGULAR_LANGUAGE_SERVER_PACKAGE: &str = "@angular/language-server";
 
 /// The path to the Angular Language Server entry point, relative to the
-/// extension's working directory (where npm packages are installed).
+/// extension's working directory.
 const ANGULAR_LANGUAGE_SERVER_PATH: &str = "node_modules/@angular/language-server/index.js";
 
 /// The name of the TypeScript npm package.
 const TYPESCRIPT_PACKAGE: &str = "typescript";
 
-/// The directory in which npm packages are installed, relative to the
-/// extension's working directory. Used as the probe location for both
-/// `--tsProbeLocations` and `--ngProbeLocations` when starting the server.
-const NODE_MODULES_PATH: &str = "node_modules";
+/// The path to the TypeScript lib, relative to the extension's working directory.
+const TYPESCRIPT_LIB_PATH: &str = "node_modules/typescript/lib";
 
 /// Resolved binary paths required to launch the Angular Language Server.
 pub struct LanguageServerBinaries {
+    pub angular_server_entrypoint: String,
+    pub angular_server_package_location: String,
     pub node: String,
-    pub server_entry: String,
-    pub node_modules: String,
+    pub typescript_entrypoint: String,
+    pub typescript_package_location: String,
 }
 
 impl LanguageServerBinaries {
@@ -50,66 +51,52 @@ impl LanguageServerBinaries {
             );
         }
 
+        zed::set_language_server_installation_status(id, &LanguageServerInstallationStatus::None);
+
         result
     }
 
-    /// Checks if a package is at the required version.
-    /// Logs if it is, otherwise triggers a download.
-    fn ensure_package_installed_in_version(
-        id: &zed::LanguageServerId,
-        package: &str,
-        version: &str,
-    ) -> zed::Result<()> {
-        if is_package_at_version(package, version) {
-            log_info!("{package}@{version} already up to date, skipping install.");
-            return Ok(());
-        }
-
-        Self::download_package(id, package, version)
-    }
-
-    /// Installs the Angular Language Server and TypeScript npm packages if
-    /// necessary and resolves the paths required to run the server.
-    ///
-    /// The Angular Language Server version is pinned to the Angular version
-    /// detected in the project, as the two packages are always released
-    /// together with matching versions.
+    /// Installs the Angular Language Server and TypeScript npm packages into the
+    /// extension directory and resolves their paths.
     pub fn resolve(
         language_server_id: &zed::LanguageServerId,
         versions: &AngularProjectVersions,
+        _worktree: &zed::Worktree,
     ) -> zed::Result<Self> {
-        let node = zed::node_binary_path()?;
+        let zed_node = zed::node_binary_path()?;
 
-        Self::ensure_package_installed_in_version(
-            language_server_id,
-            ANGULAR_LANGUAGE_SERVER_PACKAGE,
-            &versions.angular,
-        )?;
-        Self::ensure_package_installed_in_version(
-            language_server_id,
-            TYPESCRIPT_PACKAGE,
-            &versions.typescript,
-        )?;
+        if !is_package_present_in_version(ANGULAR_LANGUAGE_SERVER_PACKAGE, &versions.angular) {
+            Self::download_package(
+                language_server_id,
+                ANGULAR_LANGUAGE_SERVER_PACKAGE,
+                &versions.angular,
+            )?;
+        }
 
-        zed::set_language_server_installation_status(
-            language_server_id,
-            &LanguageServerInstallationStatus::None,
-        );
+        if !is_package_present_in_version(TYPESCRIPT_PACKAGE, &versions.typescript) {
+            Self::download_package(language_server_id, TYPESCRIPT_PACKAGE, &versions.typescript)?;
+        }
 
-        let extension_dir = std::env::current_dir().map_err(|error| error.to_string())?;
-
+        let extension_dir = env::current_dir().map_err(|error| error.to_string())?;
         Ok(Self {
-            node,
-            server_entry: resolve_path_to(&extension_dir, ANGULAR_LANGUAGE_SERVER_PATH),
-            node_modules: resolve_path_to(&extension_dir, NODE_MODULES_PATH),
+            node: zed_node,
+            angular_server_entrypoint: resolve_path_to(
+                &extension_dir,
+                ANGULAR_LANGUAGE_SERVER_PATH,
+            ),
+            angular_server_package_location: resolve_path_to(
+                &extension_dir,
+                ANGULAR_LANGUAGE_SERVER_PACKAGE,
+            ),
+            typescript_package_location: resolve_path_to(&extension_dir, TYPESCRIPT_PACKAGE),
+            typescript_entrypoint: resolve_path_to(&extension_dir, TYPESCRIPT_LIB_PATH),
         })
     }
 }
 
-/// Returns `true` if the given npm package is already installed at exactly the
-/// required version, `false` in any other case (not installed, different
-/// version, or an error querying the installed version).
-fn is_package_at_version(package: &str, required: &str) -> bool {
+/// Returns `true` if the given npm package is already installed in the extension
+/// at exactly the required version.
+fn is_package_present_in_version(package: &str, required: &str) -> bool {
     zed::npm_package_installed_version(package)
         .ok()
         .flatten()
