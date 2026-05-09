@@ -3,17 +3,14 @@ name = "Angular Language Server"
 version = "0.0.1"
 schema_version = 1
 authors = ["Pierre BOUILLON <pro.pierre.bouillon@proton.me>"]
-description = "Angular language service and templating support for Zed."
+description = "Angular Language Server and templating support for Zed."
 repository = "https://github.com/pBouillon/zed-angular-language-server"
 
 [language_servers.angular-language-server]
 name = "Angular Language Server"
 languages = [
-    # Attach only to the Angular Template language and not to all HTML files.
-    "Angular Template",
-    # TypeScript is included so the Language Service can report template-driven
-    # diagnostics in the component file, such as unused imports in
-    # `@Component.imports`.
+    "Angular",
+    "HTML",
     "TypeScript",
 ]
 
@@ -25,12 +22,7 @@ package = "@angular/language-server"
 kind = "npm:install"
 package = "typescript"
 
-# Uses the v0.8.3 (2026-02-17) of the tree-sitter grammar for Angular templates,
-# maintained by dlvandenberg.
-#
-# It extends tree-sitter-html and adds full support for Angular-specific syntax:
-# property bindings, event bindings, control flow blocks (@if, @for, @switch,
-# @defer, @let), structural directives, string interpolation, and ICU messages.
+# Uses the v0.8.3 (2026-02-17) of the tree-sitter grammar for Angular templates.
 [grammars.angular]
 repository = "https://github.com/dlvandenberg/tree-sitter-angular"
 commit = "f0d0685701b70883fa2dfe94ee7dc27965cab841"

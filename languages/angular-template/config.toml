@@ -1,20 +1,15 @@
-name = "Angular Template"
+# "Angular" is a keyword recognized by Zed's built-in TypeScript injections
+# (PR #44180, Zed v0.218.0): when it finds @Component({ template: `...` })
+# in a .ts file, it looks for a language named exactly "Angular" to highlight
+# the template content. This extension registers that language.
+name = "Angular"
+
 grammar = "angular"
 
-# `path_suffixes` does not support glob patterns, so all .html files are
-# matched here. Users who work with plain HTML alongside Angular projects
-# can narrow the association in their Zed settings:
-#
-#   "file_types": { "Angular Template": ["*.component.html"] }
-path_suffixes = ["html", "*.component.html"]
-
-# Angular templates have no line comment syntax. Block comments follow
-# the HTML convention.
-line_comments = []
+path_suffixes = ["html", "component.html"]
 block_comment = ["<!-- ", " -->"]
 
-# Two-space indentation is the Angular style guide default for templates.
-tab_size = 2
+prettier_parser_name = "angular"
 
 brackets = [
   { start = "(",  end = ")",  close = true,  newline = false },
