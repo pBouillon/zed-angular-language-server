@@ -6,7 +6,7 @@ grammar = "angular"
 # can narrow the association in their Zed settings:
 #
 #   "file_types": { "Angular Template": ["*.component.html"] }
-path_suffixes = ["html"]
+path_suffixes = ["html", "*.component.html"]
 
 # Angular templates have no line comment syntax. Block comments follow
 # the HTML convention.
