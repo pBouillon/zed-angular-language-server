@@ -1,5 +1,5 @@
-use std::collections::HashMap;
 use serde::Deserialize;
+use std::collections::HashMap;
 use zed_extension_api as zed;
 
 use crate::semantic_version::SemanticVersion;
@@ -40,8 +40,12 @@ pub fn detect_project_versions(worktree: &zed::Worktree) -> AngularProjectVersio
         .ok()
         .and_then(|content| serde_json::from_str::<PackageJson>(&content).ok());
 
-    let angular_version = json.as_ref().and_then(|json| get_package_version(ANGULAR_CORE_PACKAGE, json));
-    let typescript_version = json.as_ref().and_then(|json| get_package_version(TYPESCRIPT_PACKAGE, json));
+    let angular_version = json
+        .as_ref()
+        .and_then(|json| get_package_version(ANGULAR_CORE_PACKAGE, json));
+    let typescript_version = json
+        .as_ref()
+        .and_then(|json| get_package_version(TYPESCRIPT_PACKAGE, json));
 
     let angular = angular_version
         .as_ref()
@@ -52,7 +56,10 @@ pub fn detect_project_versions(worktree: &zed::Worktree) -> AngularProjectVersio
         .map(|v| v.to_string())
         .unwrap_or_else(|| get_compatible_ts_version_with(angular_version.as_ref()));
 
-    AngularProjectVersions { angular, typescript }
+    AngularProjectVersions {
+        angular,
+        typescript,
+    }
 }
 
 /// Retrieves a compatible TypeScript version with the provided version of
@@ -64,17 +71,17 @@ fn get_compatible_ts_version_with(angular_version: Option<&SemanticVersion>) -> 
     };
 
     match (v.major, v.minor) {
-        (21, _) => "5.9.0",  // >=5.9.0 <6.0.0
-        (20, _) => "5.8.0",  // >=5.8.0 <6.0.0
-        (19, _) => "5.5.0",  // >=5.5.0 <5.9.0
-        (18, _) => "5.4.0",  // >=5.4.0 <5.6.0
-        (17, _) => "5.2.0",  // >=5.2.0 <5.5.0
-        (16, _) => "4.9.3",  // >=4.9.3 <5.2.0
-        (15, _) => "4.8.2",  // >=4.8.2 <5.0.0
-        (14, _) => "4.6.2",  // >=4.6.2 <4.9.0
-        (13, _) => "4.4.3",  // >=4.4.3 <4.7.0
-        (12, _) => "4.2.3",  // >=4.2.3 <4.4.0
-        _       => DEFAULT_VERSION,
+        (21, _) => "5.9.0", // >=5.9.0 <6.0.0
+        (20, _) => "5.8.0", // >=5.8.0 <6.0.0
+        (19, _) => "5.5.0", // >=5.5.0 <5.9.0
+        (18, _) => "5.4.0", // >=5.4.0 <5.6.0
+        (17, _) => "5.2.0", // >=5.2.0 <5.5.0
+        (16, _) => "4.9.3", // >=4.9.3 <5.2.0
+        (15, _) => "4.8.2", // >=4.8.2 <5.0.0
+        (14, _) => "4.6.2", // >=4.6.2 <4.9.0
+        (13, _) => "4.4.3", // >=4.4.3 <4.7.0
+        (12, _) => "4.2.3", // >=4.2.3 <4.4.0
+        _ => DEFAULT_VERSION,
     }
     .to_string()
 }

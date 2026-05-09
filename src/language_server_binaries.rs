@@ -1,15 +1,14 @@
 use zed_extension_api::{self as zed, LanguageServerInstallationStatus};
 
 use crate::package_manager::AngularProjectVersions;
-use crate::{log_info, log_error};
+use crate::{log_error, log_info};
 
 /// The name of the Angular Language Server npm package.
 const ANGULAR_LANGUAGE_SERVER_PACKAGE: &str = "@angular/language-server";
 
 /// The path to the Angular Language Server entry point, relative to the
 /// extension's working directory (where npm packages are installed).
-const ANGULAR_LANGUAGE_SERVER_PATH: &str =
-    "node_modules/@angular/language-server/index.js";
+const ANGULAR_LANGUAGE_SERVER_PATH: &str = "node_modules/@angular/language-server/index.js";
 
 /// The name of the TypeScript npm package.
 const TYPESCRIPT_PACKAGE: &str = "typescript";
@@ -81,8 +80,16 @@ impl LanguageServerBinaries {
     ) -> zed::Result<Self> {
         let node = zed::node_binary_path()?;
 
-        Self::ensure_package_installed_in_version(language_server_id, ANGULAR_LANGUAGE_SERVER_PACKAGE, &versions.angular)?;
-        Self::ensure_package_installed_in_version(language_server_id, TYPESCRIPT_PACKAGE, &versions.typescript)?;
+        Self::ensure_package_installed_in_version(
+            language_server_id,
+            ANGULAR_LANGUAGE_SERVER_PACKAGE,
+            &versions.angular,
+        )?;
+        Self::ensure_package_installed_in_version(
+            language_server_id,
+            TYPESCRIPT_PACKAGE,
+            &versions.typescript,
+        )?;
 
         zed::set_language_server_installation_status(
             language_server_id,

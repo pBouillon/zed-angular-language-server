@@ -5,8 +5,8 @@ mod logging;
 mod package_manager;
 mod semantic_version;
 
-use zed_extension_api as zed;
 use language_server_binaries::LanguageServerBinaries;
+use zed_extension_api as zed;
 
 /// Represents the state of the Angular Language Server extension.
 struct AngularLanguageServerExtension {}
@@ -17,7 +17,7 @@ impl zed::Extension for AngularLanguageServerExtension {
     /// Zed calls this exactly once when the extension is loaded into the
     /// editor.
     fn new() -> Self {
-        Self { }
+        Self {}
     }
 
     /// Defines the command required to start the Angular Language Server.
