@@ -1,3 +1,4 @@
+mod completion;
 mod language_server;
 mod language_server_binaries;
 mod logging;
@@ -33,6 +34,15 @@ impl zed::Extension for AngularLanguageServerExtension {
         LanguageServerBinaries::resolve(language_server_id, &versions)
             .map(language_server::AngularLanguageServer::from)
             .map(|server| server.command())
+    }
+
+    /// Returns the label for the given completion.
+    fn label_for_completion(
+        &self,
+        _language_server_id: &zed::LanguageServerId,
+        completion: zed::lsp::Completion,
+    ) -> Option<zed::CodeLabel> {
+        completion::build_label(completion)
     }
 }
 
