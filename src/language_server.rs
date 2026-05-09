@@ -14,7 +14,7 @@ impl AngularLanguageServer {
     /// Server.
     pub fn command(&self, worktree: Option<&zed::Worktree>) -> zed::Command {
         let mut args = vec![
-            self.binaries.angular_server_entrypoint.clone(),
+            self.binaries.angular_server_package_location.clone(),
             "--stdio".to_string(),
         ];
 
@@ -31,7 +31,7 @@ impl AngularLanguageServer {
         );
 
         args.push("--tsdk".to_string());
-        args.push(self.binaries.typescript_entrypoint.clone());
+        args.push(self.binaries.typescript_package_location.clone());
 
         zed::Command {
             command: self.binaries.node.clone(),

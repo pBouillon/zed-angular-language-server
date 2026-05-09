@@ -3,6 +3,7 @@ mod language_server;
 mod language_server_binaries;
 mod logging;
 mod package_manager;
+mod package_resolver;
 mod semantic_version;
 
 use language_server_binaries::LanguageServerBinaries;
