@@ -17,3 +17,13 @@ package = "@angular/language-server"
 [[capabilities]]
 kind = "npm:install"
 package = "typescript"
+
+# Uses the v0.8.3 (2026-02-17) of the tree-sitter grammar for Angular templates,
+# maintained by dlvandenberg.
+#
+# It extends tree-sitter-html and adds full support for Angular-specific syntax:
+# property bindings, event bindings, control flow blocks (@if, @for, @switch,
+# @defer, @let), structural directives, string interpolation, and ICU messages.
+[grammars.angular]
+repository = "https://github.com/dlvandenberg/tree-sitter-angular"
+commit = "f0d0685701b70883fa2dfe94ee7dc27965cab841"

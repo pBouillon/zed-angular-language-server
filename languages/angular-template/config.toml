@@ -1,0 +1,47 @@
+name = "Angular Template"
+grammar = "angular"
+
+# `path_suffixes` does not support glob patterns, so all .html files are
+# matched here. Users who work with plain HTML alongside Angular projects
+# can narrow the association in their Zed settings:
+#
+#   "file_types": { "Angular Template": ["*.component.html"] }
+path_suffixes = ["html"]
+
+# Angular templates have no line comment syntax. Block comments follow
+# the HTML convention.
+line_comments = []
+block_comment = ["<!-- ", " -->"]
+
+# Two-space indentation is the Angular style guide default for templates.
+tab_size = 2
+
+# Inline templates in TypeScript component decorators:
+#   @Component({ template: `<button (click)="submit()">Submit</button>` })
+#
+# Supporting this would require injecting "Angular Template" into TypeScript's
+# grammar, specifically inside the `template` property of `@Component(...)`.
+# Zed's extension API does not currently provide a way to add injection rules
+# to a built-in language's grammar from an external extension.
+#
+# Tracking issues:
+#   https://github.com/zed-industries/zed/issues/4612  (custom injection queries)
+#   https://github.com/zed-industries/extensions/issues/484  (injections in extensions)
+
+brackets = [
+  { start = "(",  end = ")",  close = true,  newline = false },
+  { start = "[",  end = "]",  close = true,  newline = false },
+  { start = "{",  end = "}",  close = true,  newline = false },
+
+  { start = "\"", end = "\"", close = true,  newline = false, not_in = ["string"] },
+  { start = "'",  end = "'",  close = true,  newline = false, not_in = ["string"] },
+
+  # Angle brackets: auto-close is disabled because `<` and `>` are also
+  # used as comparison operators inside expressions, where auto-closing
+  # would be incorrect.
+  { start = "<",  end = ">",  close = false, newline = false },
+
+  # Backticks appear in template literals inside binding expressions,
+  # e.g. [class]="`icon-${name}`"
+  { start = "`",  end = "`",  close = true,  newline = false, not_in = ["string"] },
+]
