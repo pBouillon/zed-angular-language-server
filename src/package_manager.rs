@@ -93,3 +93,77 @@ fn get_package_version(package_name: &str, json: &PackageJson) -> Option<Semanti
         .or_else(|| json.dev_dependencies.get(package_name))
         .map(|v| SemanticVersion::parse(v))
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    fn make_package_json(
+        dependencies: &[(&str, &str)],
+        dev_dependencies: &[(&str, &str)],
+    ) -> PackageJson {
+        PackageJson {
+            dependencies: dependencies
+                .iter()
+                .map(|(k, v)| (k.to_string(), v.to_string()))
+                .collect(),
+            dev_dependencies: dev_dependencies
+                .iter()
+                .map(|(k, v)| (k.to_string(), v.to_string()))
+                .collect(),
+        }
+    }
+
+    #[test]
+    fn test_get_package_version_found_in_dependencies() {
+        let json = make_package_json(&[("typescript", "5.4.0")], &[]);
+        assert_eq!(
+            get_package_version("typescript", &json)
+                .unwrap()
+                .to_string(),
+            "5.4.0"
+        );
+    }
+
+    #[test]
+    fn test_get_package_version_found_in_dev_dependencies() {
+        let json = make_package_json(&[], &[("typescript", "5.4.0")]);
+        assert_eq!(
+            get_package_version("typescript", &json)
+                .unwrap()
+                .to_string(),
+            "5.4.0"
+        );
+    }
+
+    #[test]
+    fn test_get_package_version_dependencies_takes_precedence_over_dev() {
+        let json = make_package_json(&[("typescript", "5.4.0")], &[("typescript", "4.0.0")]);
+        assert_eq!(
+            get_package_version("typescript", &json)
+                .unwrap()
+                .to_string(),
+            "5.4.0"
+        );
+    }
+
+    #[test]
+    fn test_get_package_version_not_found() {
+        let json = make_package_json(&[], &[]);
+        assert!(get_package_version("typescript", &json).is_none());
+    }
+
+    #[test]
+    fn test_compatible_ts_version_no_angular_version() {
+        assert_eq!(get_compatible_ts_version_with(None), DEFAULT_VERSION);
+    }
+
+    #[test]
+    fn test_compatible_ts_version_unknown_angular_version() {
+        let version = SemanticVersion::parse("1.0.0");
+        assert_eq!(
+            get_compatible_ts_version_with(Some(&version)),
+            DEFAULT_VERSION
+        );
+    }
+}

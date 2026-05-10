@@ -28,3 +28,6 @@ jobs:
 
       - name: Build
         run: cargo build --target wasm32-wasip1 --release
+
+      - name: Run tests
+        run: cargo test

@@ -36,3 +36,82 @@ impl ExtensionSettings {
             .unwrap_or_default()
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use serde_json::json;
+
+    #[test]
+    fn test_default_settings() {
+        let settings = ExtensionSettings::default();
+
+        assert_eq!(settings.force_strict_templates, None);
+        assert!(settings.suppress_angular_diagnostic_codes.is_empty());
+    }
+
+    #[test]
+    fn test_deserialize_empty_json() {
+        let json_data = json!({});
+        let settings: ExtensionSettings = serde_json::from_value(json_data).unwrap();
+
+        assert_eq!(settings.force_strict_templates, None);
+        assert!(settings.suppress_angular_diagnostic_codes.is_empty());
+    }
+
+    #[test]
+    fn test_deserialize_full_json() {
+        let json_data = json!({
+            "force_strict_templates": true,
+            "suppress_angular_diagnostic_codes": ["-998114", "-998101"]
+        });
+
+        let settings: ExtensionSettings = serde_json::from_value(json_data).unwrap();
+
+        assert_eq!(settings.force_strict_templates, Some(true));
+        assert_eq!(
+            settings.suppress_angular_diagnostic_codes,
+            vec!["-998114".to_string(), "-998101".to_string()]
+        );
+    }
+
+    #[test]
+    fn test_deserialize_partial_json_only_strict() {
+        let json_data = json!({
+            "force_strict_templates": false
+        });
+
+        let settings: ExtensionSettings = serde_json::from_value(json_data).unwrap();
+
+        assert_eq!(settings.force_strict_templates, Some(false));
+        assert!(settings.suppress_angular_diagnostic_codes.is_empty());
+    }
+
+    #[test]
+    fn test_deserialize_partial_json_only_suppress() {
+        let json_data = json!({
+            "suppress_angular_diagnostic_codes": ["8002"]
+        });
+
+        let settings: ExtensionSettings = serde_json::from_value(json_data).unwrap();
+
+        assert_eq!(settings.force_strict_templates, None);
+        assert_eq!(
+            settings.suppress_angular_diagnostic_codes,
+            vec!["8002".to_string()]
+        );
+    }
+
+    #[test]
+    fn test_deserialize_invalid_types_fallback() {
+        let json_data = json!({
+            "force_strict_templates": "true"
+        });
+
+        let result: Result<ExtensionSettings, _> = serde_json::from_value(json_data);
+        assert!(
+            result.is_err(),
+            "Expected an error when parsing invalid types"
+        );
+    }
+}
