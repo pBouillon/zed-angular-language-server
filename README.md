@@ -57,3 +57,8 @@ Open a [GitHub issue](https://github.com/pbouillon/zed-angular-language-server/i
 
 Open a [GitHub issue](https://github.com/pbouillon/zed-angular-language-server/issues) describing the use case, or submit a pull
 request directly.
+
+## Credits
+
+This extension would not exist without the prior work done in
+[nathansbradshaw/zed-angular](https://github.com/nathansbradshaw/zed-angular).
