@@ -20,7 +20,7 @@ impl ExtensionSettings {
     /// Reads the extension's LSP settings for the given worktree.
     /// Falls back to defaults when nothing is configured.
     pub fn for_worktree(id: &zed::LanguageServerId, worktree: &zed::Worktree) -> Self {
-        let raw = zed::settings::LspSettings::for_worktree(&id.to_string(), worktree)
+        let raw = zed::settings::LspSettings::for_worktree(id.as_ref(), worktree)
             .ok()
             .and_then(|lsp| lsp.initialization_options);
 
