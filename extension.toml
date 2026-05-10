@@ -1,6 +1,6 @@
 id = "angular-language-server"
 name = "Angular Language Server"
-version = "0.0.1"
+version = "1.0.0"
 schema_version = 1
 authors = ["Pierre BOUILLON <pro.pierre.bouillon@proton.me>"]
 description = "Angular Language Server and templating support for Zed."
