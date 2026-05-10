@@ -1,4 +1,5 @@
 mod completion;
+mod extension_settings;
 mod language_server;
 mod language_server_binaries;
 mod logging;
@@ -6,6 +7,7 @@ mod package_manager;
 mod package_resolver;
 mod semantic_version;
 
+use extension_settings::ExtensionSettings;
 use language_server_binaries::LanguageServerBinaries;
 use zed_extension_api as zed;
 
@@ -30,11 +32,12 @@ impl zed::Extension for AngularLanguageServerExtension {
         language_server_id: &zed::LanguageServerId,
         worktree: &zed::Worktree,
     ) -> zed::Result<zed::Command> {
+        let settings = ExtensionSettings::for_worktree(language_server_id, worktree);
         let versions = package_manager::detect_project_versions(worktree);
 
         LanguageServerBinaries::resolve(language_server_id, &versions, worktree)
             .map(language_server::AngularLanguageServer::from)
-            .map(|server| server.command(Some(worktree)))
+            .map(|server| server.command(Some(worktree), &settings))
     }
 
     /// Returns the label for the given completion.

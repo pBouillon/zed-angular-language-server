@@ -1,3 +1,4 @@
+use crate::ExtensionSettings;
 use crate::language_server_binaries::LanguageServerBinaries;
 use std::path::PathBuf;
 use std::{env, vec};
@@ -12,7 +13,11 @@ pub struct AngularLanguageServer {
 impl AngularLanguageServer {
     /// Returns the [`zed::Command`] required to start the Angular Language
     /// Server.
-    pub fn command(&self, worktree: Option<&zed::Worktree>) -> zed::Command {
+    pub fn command(
+        &self,
+        worktree: Option<&zed::Worktree>,
+        settings: &ExtensionSettings,
+    ) -> zed::Command {
         let mut args = vec![
             self.binaries.angular_server_package_location.clone(),
             "--stdio".to_string(),
@@ -32,6 +37,17 @@ impl AngularLanguageServer {
 
         args.push("--tsdk".to_string());
         args.push(self.binaries.typescript_package_location.clone());
+
+        // User settings
+        match settings.force_strict_templates {
+            Some(true) => args.push("--forceStrictTemplates".to_string()),
+            Some(false) | None => {}
+        }
+
+        if !settings.suppress_angular_diagnostic_codes.is_empty() {
+            args.push("--suppressAngularDiagnosticCodes".to_string());
+            args.push(settings.suppress_angular_diagnostic_codes.join(","));
+        }
 
         zed::Command {
             command: self.binaries.node.clone(),

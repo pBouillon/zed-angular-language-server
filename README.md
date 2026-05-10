@@ -1,4 +1,4 @@
-# Angular Language Server — Zed Extension
+# Angular Language Server Zed Extension
 
 [Angular](https://angular.dev) template support for [Zed](https://zed.dev),
 powered by the [Angular Language Service](https://angular.dev/tools/language-service).
@@ -10,12 +10,32 @@ powered by the [Angular Language Service](https://angular.dev/tools/language-ser
 - TypeScript highlighting and completions injected into binding expressions and interpolations
 - Code outline listing elements, control flow blocks, defer blocks, and template variables
 - Auto-indentation for HTML elements and control flow blocks
+## Configuration
+
+Add the following to your Zed `settings.json` to customize the extension:
+
+```json
+{
+  "lsp": {
+    "angular-language-server": {
+      "initialization_options": {
+        "force_strict_templates": true,
+        "suppress_angular_diagnostic_codes": ["-998113"]
+      }
+    }
+  }
+}
+```
+
+| Option | Type | Default | Description |
+|--------|------|---------|-------------|
+| `force_strict_templates` | `boolean` | `false` | Force-enables strict template type-checking, overriding your `tsconfig`. |
+| `suppress_angular_diagnostic_codes` | `string[]` | `[]` | List of [Angular diagnostic codes](https://angular.dev/extended-diagnostics) to suppress, e.g. `["-998113"]`. The code for a diagnostic is shown in parentheses when hovering over it in the editor. |
 
 ## Getting Started
 
 1. Clone this repository
 1. Add your changes
-1. Build the extension for WASM by running `cargo build-extension`
 1. Open Zed, navigate to the extension window and click on `Install Dev Extension`
 1. Select the folder in which is placed the `extension.toml`
 
