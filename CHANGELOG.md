@@ -1,5 +1,9 @@
 ## Changelog
 
+### v1.1.0 (unreleased)
+
+- feat: add TypeScript and Angular Language Server pinning option in the settings.
+
 ### v1.0.0 (2026-05-10)
 
 #### Language
