@@ -43,6 +43,7 @@ pub fn detect_project_versions(worktree: &zed::Worktree) -> AngularProjectVersio
     let angular_version = json
         .as_ref()
         .and_then(|json| get_package_version(ANGULAR_CORE_PACKAGE, json));
+
     let typescript_version = json
         .as_ref()
         .and_then(|json| get_package_version(TYPESCRIPT_PACKAGE, json));

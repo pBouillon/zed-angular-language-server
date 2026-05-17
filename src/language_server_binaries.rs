@@ -1,7 +1,9 @@
-use zed_extension_api as zed;
-
+use crate::extension_settings::ExtensionSettings;
+use crate::log_info;
 use crate::package_manager::AngularProjectVersions;
 use crate::package_resolver::PackageResolver;
+use crate::package_source::PackageSource;
+use zed_extension_api as zed;
 
 /// The name of the Angular Language Server npm package.
 const ANGULAR_LANGUAGE_SERVER_PACKAGE: &str = "@angular/language-server";
@@ -24,25 +26,66 @@ pub struct LanguageServerBinaries {
 }
 
 impl LanguageServerBinaries {
-    /// Installs the Angular Language Server and TypeScript npm packages
-    /// and resolves their paths.
+    /// Resolves the paths for the Angular Language Server and TypeScript,
+    /// taking into account any version or path pins in the extension settings.
+    /// Pinned paths bypass npm resolution entirely; pinned versions override
+    /// those inferred from the project's `package.json`.
     pub fn resolve(
         language_server_id: &zed::LanguageServerId,
         versions: &AngularProjectVersions,
         worktree: &zed::Worktree,
+        settings: &ExtensionSettings,
     ) -> zed::Result<Self> {
         let package_resolver = PackageResolver::new(language_server_id, worktree)?;
 
-        let angular_server_package_location = package_resolver
-            .resolve_package_location(ANGULAR_LANGUAGE_SERVER_PACKAGE, &versions.angular)?;
+        let angular_server_package_location = resolve_location(
+            &package_resolver,
+            ANGULAR_LANGUAGE_SERVER_PACKAGE,
+            &versions.angular,
+            settings
+                .pin
+                .get(ANGULAR_LANGUAGE_SERVER_PACKAGE)
+                .map(String::as_str),
+        )?;
 
-        let typescript_package_location =
-            package_resolver.resolve_package_location(TYPESCRIPT_PACKAGE, &versions.typescript)?;
+        let typescript_package_location = resolve_location(
+            &package_resolver,
+            TYPESCRIPT_PACKAGE,
+            &versions.typescript,
+            settings.pin.get(TYPESCRIPT_PACKAGE).map(String::as_str),
+        )?;
 
         Ok(Self {
             node: zed::node_binary_path()?,
             angular_server_package_location,
             typescript_package_location,
         })
+    }
+}
+
+/// Resolves the location of a package, respecting any pin from the settings.
+///
+/// If the pin is a local path, it is returned directly without any npm
+/// interaction. If it is a version string, that version is used instead of
+/// the one inferred from the project. If no pin is set, the inferred version
+/// is used.
+fn resolve_location(
+    resolver: &PackageResolver,
+    package: &str,
+    inferred_version: &str,
+    pin: Option<&str>,
+) -> zed::Result<String> {
+    match pin.map(PackageSource::from_str) {
+        Some(PackageSource::Path(path)) => {
+            log_info!("Using pinned local path for {package}: {path}");
+            Ok(path)
+        }
+        Some(PackageSource::Version(version)) => {
+            log_info!(
+                "Using pinned version for {package}: {version} (inferred: {inferred_version})"
+            );
+            resolver.resolve_package_location(package, &version)
+        }
+        None => resolver.resolve_package_location(package, inferred_version),
     }
 }

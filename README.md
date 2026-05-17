@@ -20,7 +20,11 @@ Add the following to your Zed `settings.json` to customize the extension:
     "angular-language-server": {
       "initialization_options": {
         "force_strict_templates": true,
-        "suppress_angular_diagnostic_codes": ["-998113"]
+        "suppress_angular_diagnostic_codes": ["-998113"],
+        "pin": {
+          "@angular/language-server": "21.1.0",
+          "typescript": "/absolute/path/to/typescript"
+        }
       }
     }
   }
@@ -31,6 +35,7 @@ Add the following to your Zed `settings.json` to customize the extension:
 |--------|------|---------|-------------|
 | `force_strict_templates` | `boolean` | `false` | Force-enables strict template type-checking, overriding your `tsconfig`. |
 | `suppress_angular_diagnostic_codes` | `string[]` | `[]` | List of [Angular diagnostic codes](https://angular.dev/extended-diagnostics) to suppress, e.g. `["-998113"]`. The code for a diagnostic is shown in parentheses when hovering over it in the editor. |
+| `pin` | `object` | `{}` | Pins specific packages to a version or local path, keyed by npm package name. Accepts a version string (e.g. `"21.1.0"`), `"latest"`, or an absolute path. Use with caution: incompatible combinations will prevent the language server from starting. Refer to the [Angular version compatibility matrix](https://angular.dev/reference/versions) before pinning. |
 
 ## Getting Started
 

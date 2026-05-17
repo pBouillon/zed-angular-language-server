@@ -5,6 +5,7 @@ mod language_server_binaries;
 mod logging;
 mod package_manager;
 mod package_resolver;
+mod package_source;
 mod semantic_version;
 
 use extension_settings::ExtensionSettings;
@@ -35,7 +36,7 @@ impl zed::Extension for AngularLanguageServerExtension {
         let settings = ExtensionSettings::for_worktree(language_server_id, worktree);
         let versions = package_manager::detect_project_versions(worktree);
 
-        LanguageServerBinaries::resolve(language_server_id, &versions, worktree)
+        LanguageServerBinaries::resolve(language_server_id, &versions, worktree, &settings)
             .map(language_server::AngularLanguageServer::from)
             .map(|server| server.command(Some(worktree), &settings))
     }
