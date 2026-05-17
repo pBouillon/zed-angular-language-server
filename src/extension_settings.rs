@@ -1,5 +1,6 @@
 use crate::log_info;
 use serde::Deserialize;
+use std::collections::HashMap;
 use zed_extension_api::{self as zed};
 
 #[derive(Debug, Deserialize, Default)]
@@ -14,6 +15,16 @@ pub struct ExtensionSettings {
     /// e.g. `"2003,2345"`.
     #[serde(default)]
     pub suppress_angular_diagnostic_codes: Vec<String>,
+
+    /// Pins specific npm packages to a version string or local path,
+    /// keyed by their npm package name.
+    ///
+    /// Accepted values per entry:
+    /// - A semantic version string, e.g. `"17.3.0"`
+    /// - `"latest"`
+    /// - An absolute path to a local package directory, e.g. `"/path/to/pkg"`
+    #[serde(default)]
+    pub pin: HashMap<String, String>,
 }
 
 impl ExtensionSettings {

@@ -103,6 +103,9 @@ fn get_current_directory() -> Result<PathBuf> {
 mod tests {
     use super::*;
 
+    use serde_json::json;
+    use std::collections::HashMap;
+
     fn build(settings: &ExtensionSettings) -> Vec<String> {
         build_args(
             "/angular/language/server/location",
@@ -118,6 +121,7 @@ mod tests {
         let settings = ExtensionSettings {
             force_strict_templates: Some(true),
             suppress_angular_diagnostic_codes: vec!["-998114".to_string(), "-998101".to_string()],
+            pin: HashMap::new(),
         };
 
         assert_eq!(
@@ -202,5 +206,62 @@ mod tests {
             .position(|a| a == "--suppressAngularDiagnosticCodes")
             .unwrap();
         assert_eq!(args[flag_index + 1], "-998114,-998101");
+    }
+
+    #[test]
+    fn test_deserialize_pin_with_version() {
+        let json_data = json!({
+            "pin": {
+                "@angular/language-server": "17.3.0",
+                "typescript": "5.4.0"
+            }
+        });
+        let settings: ExtensionSettings = serde_json::from_value(json_data).unwrap();
+        assert_eq!(
+            settings
+                .pin
+                .get("@angular/language-server")
+                .map(String::as_str),
+            Some("17.3.0")
+        );
+        assert_eq!(
+            settings.pin.get("typescript").map(String::as_str),
+            Some("5.4.0")
+        );
+    }
+
+    #[test]
+    fn test_deserialize_pin_with_local_path() {
+        let json_data = json!({
+            "pin": {
+                "typescript": "/usr/local/lib/typescript"
+            }
+        });
+        let settings: ExtensionSettings = serde_json::from_value(json_data).unwrap();
+        assert_eq!(
+            settings.pin.get("typescript").map(String::as_str),
+            Some("/usr/local/lib/typescript")
+        );
+    }
+
+    #[test]
+    fn test_deserialize_pin_defaults_to_empty() {
+        let settings: ExtensionSettings = serde_json::from_value(json!({})).unwrap();
+        assert!(settings.pin.is_empty());
+    }
+
+    #[test]
+    fn test_deserialize_pin_partial_override() {
+        let json_data = json!({
+            "pin": {
+                "typescript": "latest"
+            }
+        });
+        let settings: ExtensionSettings = serde_json::from_value(json_data).unwrap();
+        assert_eq!(
+            settings.pin.get("typescript").map(String::as_str),
+            Some("latest")
+        );
+        assert!(settings.pin.get("@angular/language-server").is_none());
     }
 }
